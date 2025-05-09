@@ -45,11 +45,13 @@ async function main() {
         adapter: createAdapter()
     });
 
+    app.use(express.static('public'));
+
     app.get('/', (req, res) => {
-        res.sendFile(join(__dirname, 'index.html'));
+        res.sendFile(join(__dirname, '/public/index.html'));
     });
 
-    app.use('/assets', express.static('assets'));
+    // app.use('/', express.static('public'));
 
     io.on('connection', async (socket) => {
         console.log('User connected:', socket.id);

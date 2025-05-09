@@ -263,6 +263,11 @@
             }
         });
 
+        // Prevent hiding when clicking inside the main-container
+        maincontainer.addEventListener('click', (event) => {
+            event.stopPropagation();
+        });
+
         startBtn.addEventListener('click', () => {
             userName = userInput.value.trim();
             userPhone = userInputPhone.value.trim();
