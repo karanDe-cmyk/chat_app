@@ -109,8 +109,8 @@ async function main() {
     });
 
     const port = process.env.PORT || 3001;
-    server.listen(port, '0.0.0.0', () => {
-        console.log(`Server running at http://192.168.31.1:${port}`);
+    server.listen(port, () => {
+        console.log(`Server running at http://localhost:${port}`);
     });
 }
 
