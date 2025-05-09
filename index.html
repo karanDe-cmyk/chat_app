@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <title>Socket.IO chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            padding: 40px 0;
+        }
+
+        .main-container {
+            position: absolute;
+            left: 59%;
+            bottom: 20%;
+            max-width: 500px !important;
+        }
+
+        .chat-container {
+            position: absolute;
+            left: 29%;
+            bottom: 15%;
+            width: 360px;
+            background: #003a9b;
+            color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #username {
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            outline: none;
+        }
+
+        #userphone {
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            outline: none;
+        }
+
+        #username:focus {
+            border-color: #4dabf7;
+        }
+
+        #userphone:focus {
+            border-color: #4dabf7;
+        }
+
+        #startChat {
+            padding: 12px 24px;
+            background: #4dabf7;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        #startChat:hover {
+            background: #339af0;
+        }
+
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 10px;
+            height: 400px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #e9f0ff;
+        }
+
+        #messages li {
+            padding: 8px 12px;
+            border-radius: 16px;
+            max-width: 75%;
+            word-wrap: break-word;
+            font-size: 14px;
+            margin-top: auto;
+        }
+
+        .sender {
+            align-self: flex-end;
+            background: #003a9b;
+            color: #fff;
+            border-bottom-right-radius: 2px;
+        }
+
+        .receiver {
+            align-self: flex-start;
+            background: #dbe6ff;
+            color: #000;
+            border-bottom-left-radius: 2px;
+        }
+
+        #form {
+            display: flex;
+            border-top: 1px solid #ccc;
+            background: #fff;
+        }
+
+        #input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            outline: none;
+        }
+
+        #inputBtn {
+            /* flex: 1; */
+            border: none;
+            padding: 12px;
+            font-size: 14px;
+            outline: none;
+            margin-left: auto;
+        }
+
+        #inputBtn {
+            background: #003a9b;
+            color: #fff;
+            border: none;
+            padding: 0 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        #inputBtn:hover {
+            background: #002e7a;
+        }
+
+        .auth-container {
+            padding: 2rem;
+            background: #f8f9fa;
+            text-align: center;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .openBtn {
+            position: absolute;
+            /* border-radius: 50%; */
+            padding: 10px 5px;
+            border: none;
+            bottom: 8%;
+            left: 90%;
+            font-size: 15px;
+            /* background: #003a9b; */
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .card-header {
+            background: #003a9b !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5 main-container" id="main-container" style="display: none;">
+        <div id="auth" class="auth-container text-center p-4 bg-light rounded shadow-sm">
+            <h2 class="mb-4">Welcome to Chat</h2>
+            <div class="row justify-content-center">
+                <div class="col-md-6 w-100 d-flex flex-column">
+                    <input id="username" class="form-control form-control-lg mb-3" placeholder="Enter your Email..." />
+                    <input id="userphone" class="form-control form-control-lg mb-3"
+                        placeholder="Enter your Phone Number..." />
+                    <button id="startChat" class="btn btn-primary btn-lg w-100">Start Chat</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="chat" class="chat-container mt-4" style="display: none;">
+            <div class="card shadow">
+                <div class="card-header text-white d-flex justify-content-between align-items-center">
+                    <!-- <h4 class="mb-0" style="text-align: center;">Letsmakecompany</h4> -->
+                    <div class="text-center flex-grow-1">
+                        <img src="http://localhost:3001/assets/logo.png" alt="logo" style="height: 60px;">
+                    </div>
+                    <button id="closeChat" class="btn btn-sm btn-outline-light ms-auto">
+                        <i class="bi bi-x-lg"></i> <!-- Bootstrap Icons X -->
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <ul id="messages" class="list-unstyled p-3" style="height: 400px; overflow-y: auto;"></ul>
+                </div>
+                <div class="card-footer">
+                    <form id="form" class="d-flex">
+                        <input id="input" class="form-control me-2" autocomplete="off"
+                            placeholder="Type a message..." />
+                        <button id="inputBtn" class="btn btn-primary">Send</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button id="openBtn" class="openBtn"><img src="http://localhost:3001/assets/consultation.gif" alt="Open" style="width: 60px; height: 60px;"></button>
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let counter = 0;
+        let socket;
+        let userName = "";
+
+        const authBox = document.getElementById('auth');
+        const chatBox = document.getElementById('chat');
+        const startBtn = document.getElementById('startChat');
+        const userInput = document.getElementById('username');
+        const userInputPhone = document.getElementById('userphone');
+        const maincontainer = document.getElementById('main-container');
+        const openBtn = document.getElementById('openBtn');
+
+        const form = document.getElementById('form');
+        const input = document.getElementById('input');
+        const messages = document.getElementById('messages');
+
+        function addMessage(msg, type) {
+            const item = document.createElement('li');
+            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            item.textContent = `${msg} ${timestamp}`;
+            item.className = type;
+            messages.appendChild(item);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        openBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            if (maincontainer.style.display === "block") {
+                maincontainer.style.display = "none";
+            } else {
+                maincontainer.style.display = "block";
+            }
+
+        })
+
+        document.addEventListener('click', (event) => {
+            if (maincontainer.style.display === "block") {
+                maincontainer.style.display = "none";
+            }
+        });
+
+        startBtn.addEventListener('click', () => {
+            userName = userInput.value.trim();
+            userPhone = userInputPhone.value.trim();
+            if (!userName && !userPhone) return alert("Please enter your name and phone number");
+
+            authBox.style.display = "none";
+            chatBox.style.display = "block";
+
+            messages.innerHTML = '';
+
+            const socket = io({
+                auth: {
+                    serverOffset: 0
+                },
+                ackTimeout: 10000,
+                retries: 3,
+            });
+
+            // Join a unique room for this user
+            const ROOM_NAME = `chat-${userName}-${Date.now()}`;
+            socket.emit('joinRoom', ROOM_NAME);
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                if (input.value) {
+                    const clientOffset = `${socket.id}-${counter++}`;
+                    const msgData = {
+                        room: ROOM_NAME,
+                        msg: input.value
+                    };
+                    socket.emit('chat message', msgData, clientOffset);
+                    addMessage(input.value, 'sender');
+                    input.value = '';
+                }
+            });
+
+            // Handle incoming chat messages
+            socket.on('chat message', (data, serverOffset) => {
+                // If data is just a string, treat it as a message
+                const msg = typeof data === 'string' ? data : data.msg;
+                addMessage(msg, 'receiver');
+
+                // Save offset for retry/resume support if needed
+                if (serverOffset) {
+                    socket.auth.serverOffset = serverOffset;
+                }
+            });
+        });
+
+        document.getElementById('closeChat').addEventListener('click', function () {
+            document.getElementById('chat').style.display = 'none';
+            document.getElementById('auth').style.display = 'block';
+        });
+    </script>
+
+</body>
+
+</html>
