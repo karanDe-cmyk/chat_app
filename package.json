@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "react-scripts build",
     "build": "echo 'Backend has no build step' && exit 0"
   },
   "keywords": [],
